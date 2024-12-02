@@ -3,9 +3,9 @@ use aoc_traits::AdventOfCodeSolutions;
 pub struct AoC2024;
 
 impl AdventOfCodeSolutions for AoC2024 {
-    type Day01 = day01::Day1Solver;
+    type Day01 = day01::Solver;
 
-    type Day02 = ();
+    type Day02 = day02::Solver;
 
     type Day03 = ();
 

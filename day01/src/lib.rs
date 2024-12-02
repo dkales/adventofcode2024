@@ -4,8 +4,8 @@ use aoc_traits::AdventOfCodeDay;
 use itertools::izip;
 
 #[derive(Default)]
-pub struct Day1Solver;
-impl<'a> AdventOfCodeDay<'a> for Day1Solver {
+pub struct Solver;
+impl<'a> AdventOfCodeDay<'a> for Solver {
     type ParsedInput = (Vec<u32>, Vec<u32>);
     type Part1Output = u32;
     type Part2Output = u32;
@@ -52,7 +52,7 @@ impl<'a> AdventOfCodeDay<'a> for Day1Solver {
 mod tests {
     use aoc_traits::AdventOfCodeDay;
 
-    use crate::Day1Solver;
+    use crate::Solver;
     const TEST_INPUT: &str = "3   4
 4   3
 2   5
@@ -62,12 +62,12 @@ mod tests {
 
     #[test]
     fn test_stage1() {
-        let parsed = Day1Solver::parse_input(TEST_INPUT);
-        assert_eq!(Day1Solver::solve_part1(&parsed), 11);
+        let parsed = Solver::parse_input(TEST_INPUT);
+        assert_eq!(Solver::solve_part1(&parsed), 11);
     }
     #[test]
     fn test_stage2() {
-        let parsed = Day1Solver::parse_input(TEST_INPUT);
-        assert_eq!(Day1Solver::solve_part2(&parsed), 31);
+        let parsed = Solver::parse_input(TEST_INPUT);
+        assert_eq!(Solver::solve_part2(&parsed), 31);
     }
 }

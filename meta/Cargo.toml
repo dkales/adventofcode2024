@@ -6,13 +6,13 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+age = "0.11.0"
 aoc-traits = { workspace = true }
 clap = { version = "4", features = ["derive", "env"] }
 secrecy = "0.10"
 color-eyre = { version = "0.6" }
 day01 = { path = "../day01" }
-age = "0.11.0"
-# day02 = { path = "../day02" }
+day02 = { path = "../day02" }
 # day03 = { path = "../day03" }
 # day04 = { path = "../day04" }
 # day05 = { path = "../day05" }
