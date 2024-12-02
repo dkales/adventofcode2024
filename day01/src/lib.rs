@@ -5,12 +5,12 @@ use itertools::izip;
 
 #[derive(Default)]
 pub struct Solver;
-impl<'a> AdventOfCodeDay<'a> for Solver {
-    type ParsedInput = (Vec<u32>, Vec<u32>);
+impl AdventOfCodeDay for Solver {
+    type ParsedInput<'a> = (Vec<u32>, Vec<u32>);
     type Part1Output = u32;
     type Part2Output = u32;
 
-    fn parse_input(input: &str) -> Self::ParsedInput {
+    fn parse_input(input: &str) -> Self::ParsedInput<'_> {
         let mut a = Vec::new();
         let mut b = Vec::new();
         for line in input.lines() {
@@ -31,14 +31,14 @@ impl<'a> AdventOfCodeDay<'a> for Solver {
         (a, b)
     }
 
-    fn solve_part1(input: &Self::ParsedInput) -> Self::Part1Output {
+    fn solve_part1(input: &Self::ParsedInput<'_>) -> Self::Part1Output {
         let (mut a, mut b) = input.clone();
         a.sort();
         b.sort();
 
         izip!(a, b).map(|(x, y)| x.abs_diff(y)).sum()
     }
-    fn solve_part2((x, y): &Self::ParsedInput) -> Self::Part2Output {
+    fn solve_part2((x, y): &Self::ParsedInput<'_>) -> Self::Part2Output {
         let mut counts = HashMap::new();
         for x in x.iter() {
             *counts.entry(x).or_insert(0) += 1;

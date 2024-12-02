@@ -24,12 +24,12 @@ fn subsequence_ok(seq: &[u32]) -> bool {
 
 #[derive(Default)]
 pub struct Solver;
-impl<'a> AdventOfCodeDay<'a> for Solver {
-    type ParsedInput = Vec<Vec<u32>>;
+impl AdventOfCodeDay for Solver {
+    type ParsedInput<'a> = Vec<Vec<u32>>;
     type Part1Output = usize;
     type Part2Output = usize;
 
-    fn parse_input(input: &str) -> Self::ParsedInput {
+    fn parse_input(input: &str) -> Self::ParsedInput<'_> {
         input
             .lines()
             .map(|line| {
@@ -40,10 +40,10 @@ impl<'a> AdventOfCodeDay<'a> for Solver {
             .collect()
     }
 
-    fn solve_part1(input: &Self::ParsedInput) -> Self::Part1Output {
+    fn solve_part1(input: &Self::ParsedInput<'_>) -> Self::Part1Output {
         input.iter().filter(|x| sequence_ok(x)).count()
     }
-    fn solve_part2(input: &Self::ParsedInput) -> Self::Part2Output {
+    fn solve_part2(input: &Self::ParsedInput<'_>) -> Self::Part2Output {
         input
             .iter()
             .filter(|x| sequence_ok(x) || subsequence_ok(x))

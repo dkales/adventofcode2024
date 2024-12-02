@@ -32,4 +32,4 @@ resolver = "2"
 
 
 [workspace.dependencies]
-aoc-traits = { git = "https://github.com/dkales/adventofcode2023-leaderboard", rev = "ac544663758c2dca2ee892fd7ab59419999350dc" }
+aoc-traits = { git = "https://github.com/dkales/adventofcode2024-leaderboard", rev = "c03be9a25e0b695061a74f4f0e62f59f59e4f507" }

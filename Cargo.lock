@@ -122,7 +122,7 @@ dependencies = [
 [[package]]
 name = "aoc-traits"
 version = "0.1.0"
-source = "git+https://github.com/dkales/adventofcode2023-leaderboard?rev=ac544663758c2dca2ee892fd7ab59419999350dc#ac544663758c2dca2ee892fd7ab59419999350dc"
+source = "git+https://github.com/dkales/adventofcode2024-leaderboard?rev=c03be9a25e0b695061a74f4f0e62f59f59e4f507#c03be9a25e0b695061a74f4f0e62f59f59e4f507"
 
 [[package]]
 name = "arc-swap"
