@@ -28,11 +28,7 @@ impl FromStr for Grid {
 
 impl Grid {
     fn get(&self, x: usize, y: usize) -> Option<u8> {
-        if x < self.x && y < self.y {
-            Some(self.grid[y * self.x + x])
-        } else {
-            None
-        }
+        self.grid.get(y * self.x + x).copied()
     }
 
     fn find_xmas(&self) -> usize {
