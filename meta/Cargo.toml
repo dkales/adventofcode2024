@@ -14,7 +14,7 @@ color-eyre = { version = "0.6" }
 day01 = { path = "../day01" }
 day02 = { path = "../day02" }
 day03 = { path = "../day03" }
-# day04 = { path = "../day04" }
+day04 = { path = "../day04" }
 # day05 = { path = "../day05" }
 # day06 = { path = "../day06" }
 # day07 = { path = "../day07" }
