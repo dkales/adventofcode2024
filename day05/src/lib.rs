@@ -56,28 +56,20 @@ impl PageGame {
         }
         return true;
     }
-    fn fix_last_rec(&self, page: &mut [u8]) {
-        let len = page.len();
-        if len < 2 {
-            return;
-        }
-        let not_allowed_set = page.iter().copied().collect::<HashSet<_>>();
-        let empty = HashSet::new();
-        for i in 0..len {
-            let check_against = self.invalid_after.get(&page[i]).unwrap_or(&empty);
-            if not_allowed_set.intersection(check_against).count() == 0 {
-                page.swap(i, len - 1);
-                break;
-            }
-        }
-        self.fix_last_rec(&mut page[..len - 1]);
-    }
 
     fn sort(&self, page: &[u8]) -> Vec<u8> {
-        let mut res = page.to_vec();
-        self.fix_last_rec(&mut res[..]);
-
-        res
+        let res = page.to_vec();
+        let not_allowed_set = page.iter().copied().collect::<HashSet<_>>();
+        let empty = HashSet::new();
+        let mut sorted: Vec<_> = res
+            .into_iter()
+            .map(|x| {
+                let check_against = self.invalid_after.get(&x).unwrap_or(&empty);
+                (x, not_allowed_set.intersection(check_against).count())
+            })
+            .collect();
+        sorted.sort_by_key(|(_, count)| *count);
+        sorted.into_iter().map(|(x, _)| x).collect()
     }
     fn part1(&self) -> usize {
         self.pages
