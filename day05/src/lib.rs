@@ -1,11 +1,10 @@
-use std::collections::{HashMap, HashSet};
 use std::str::FromStr;
 
 use aoc_traits::AdventOfCodeDay;
 
 #[derive(Debug, Clone)]
 pub struct PageGame {
-    invalid_after: HashMap<u8, HashSet<u8>>,
+    invalid_after: Vec<Vec<u8>>,
     pages: Vec<Vec<u8>>,
 }
 
@@ -31,9 +30,9 @@ impl FromStr for PageGame {
             .map(|line| line.split(',').map(|n| n.parse()).collect::<Result<_, _>>())
             .collect::<Result<_, _>>()?;
 
-        let mut invalid_after: HashMap<u8, HashSet<u8>> = HashMap::new();
+        let mut invalid_after: Vec<Vec<u8>> = vec![vec![]; 256];
         for (a, b) in &rules {
-            invalid_after.entry(*a).or_default().insert(*b);
+            invalid_after[*a as usize].push(*b);
         }
 
         Ok(PageGame {
@@ -43,10 +42,21 @@ impl FromStr for PageGame {
     }
 }
 
+fn intersection_len(a: &[u8], b: &[u8]) -> usize {
+    let mut count = 0;
+    for i in a {
+        if b.contains(i) {
+            count += 1;
+        }
+    }
+    count
+}
+
 impl PageGame {
     fn is_valid(&self, page: &[u8]) -> bool {
         for i in 0..page.len() {
-            if let Some(check_against) = self.invalid_after.get(&page[i]) {
+            let check_against = &self.invalid_after[page[i] as usize];
+            if !check_against.is_empty() {
                 for check in 0..i {
                     if check_against.contains(&page[check]) {
                         return false;
@@ -59,13 +69,11 @@ impl PageGame {
 
     fn sort(&self, page: &[u8]) -> Vec<u8> {
         let res = page.to_vec();
-        let not_allowed_set = page.iter().copied().collect::<HashSet<_>>();
-        let empty = HashSet::new();
         let mut sorted: Vec<_> = res
             .into_iter()
             .map(|x| {
-                let check_against = self.invalid_after.get(&x).unwrap_or(&empty);
-                (x, not_allowed_set.intersection(check_against).count())
+                let check_against = &self.invalid_after[x as usize];
+                (x, intersection_len(&check_against, page))
             })
             .collect();
         sorted.sort_by_key(|(_, count)| *count);
