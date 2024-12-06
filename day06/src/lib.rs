@@ -1,7 +1,5 @@
-use std::{
-    collections::{HashMap, HashSet},
-    str::FromStr,
-};
+use rustc_hash::FxHashSet as HashSet;
+use std::str::FromStr;
 
 use aoc_traits::AdventOfCodeDay;
 
@@ -21,7 +19,7 @@ impl FromStr for Grid {
         let mut g_y = 0;
         let mut player = None;
 
-        let mut stones = HashSet::new();
+        let mut stones = HashSet::default();
         for (y, line) in s.lines().enumerate() {
             g_y += 1;
             g_x = line.len();
@@ -48,7 +46,7 @@ impl Grid {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 enum Direction {
     Up,
     Down,
@@ -76,7 +74,7 @@ impl Direction {
 }
 
 fn part1(grid: &Grid) -> usize {
-    let mut visited = HashSet::new();
+    let mut visited = HashSet::default();
     let mut dir = Direction::Up;
     let mut player = (grid.player.0 as isize, grid.player.1 as isize);
     loop {
@@ -100,22 +98,24 @@ fn part1(grid: &Grid) -> usize {
 
 fn check_if_loops(
     grid: &Grid,
-    mut visited: HashMap<(isize, isize), Vec<Direction>>,
+    mut visited: HashSet<(isize, isize, Direction)>,
     mut player: (isize, isize),
     mut dir: Direction,
     new_rock: (isize, isize),
 ) -> bool {
     // if we put a rock in this position we could not have gotten here at all
-    if visited.contains_key(&new_rock) {
+    if visited.contains(&(new_rock.0, new_rock.1, Direction::Up))
+        || visited.contains(&(new_rock.0, new_rock.1, Direction::Down))
+        || visited.contains(&(new_rock.0, new_rock.1, Direction::Left))
+        || visited.contains(&(new_rock.0, new_rock.1, Direction::Right))
+    {
         return false;
     }
     loop {
-        if let Some(inter_dir) = visited.get(&player) {
-            if inter_dir.contains(&dir) {
-                return true;
-            }
+        if visited.contains(&(player.0, player.1, dir)) {
+            return true;
         }
-        visited.entry(player).or_default().push(dir);
+        visited.insert((player.0, player.1, dir));
 
         let next_player = dir.step(player);
         if next_player == new_rock {
@@ -138,15 +138,15 @@ fn check_if_loops(
 }
 
 fn part2(grid: &Grid) -> usize {
-    let mut potential_loops = HashSet::new();
-    let mut visited: HashMap<(isize, isize), Vec<Direction>> = HashMap::new();
+    let mut potential_loops = HashSet::default();
+    let mut visited: HashSet<(isize, isize, Direction)> = HashSet::default();
     let mut dir = Direction::Up;
     let mut player = (grid.player.0 as isize, grid.player.1 as isize);
     loop {
         if check_if_loops(grid, visited.clone(), player, dir.turn(), dir.step(player)) {
             potential_loops.insert(dir.step(player));
         }
-        visited.entry(player).or_default().push(dir);
+        visited.insert((player.0, player.1, dir));
 
         let next_player = dir.step(player);
         if !grid.in_bounds(next_player.0, next_player.1) {
