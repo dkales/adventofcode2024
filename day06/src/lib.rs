@@ -4,13 +4,12 @@ use std::{
 };
 
 use aoc_traits::AdventOfCodeDay;
-use eyre::ensure;
 
 #[derive(Debug, Clone)]
 pub struct Grid {
-    grid: Vec<u8>,
     x: usize,
     y: usize,
+    stones: HashSet<(usize, usize)>,
     player: (usize, usize),
 }
 
@@ -18,44 +17,34 @@ impl FromStr for Grid {
     type Err = eyre::Report;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let x = s.lines().next().unwrap().len();
-        let y = s.lines().count();
+        let mut g_x = 0;
+        let mut g_y = 0;
         let mut player = None;
-        let grid: Vec<u8> = s
-            .lines()
-            .enumerate()
-            .map(|(y, line)| {
-                line.chars()
-                    .enumerate()
-                    .map(|(x, c)| {
-                        if c == '^' {
-                            player = Some((x, y));
-                            b'.'
-                        } else {
-                            c as u8
-                        }
-                    })
-                    .collect::<Vec<_>>()
-            })
-            .flatten()
-            .collect();
-        ensure!(grid.len() == x * y, "Invalid grid");
+
+        let mut stones = HashSet::new();
+        for (y, line) in s.lines().enumerate() {
+            g_y += 1;
+            g_x = line.len();
+            for (x, c) in line.chars().enumerate() {
+                if c == '^' {
+                    player = Some((x, y));
+                } else if c == '#' {
+                    stones.insert((x, y));
+                }
+            }
+        }
         Ok(Grid {
-            grid,
-            x,
-            y,
+            x: g_x,
+            y: g_y,
             player: player.expect("have a player"),
+            stones,
         })
     }
 }
 
 impl Grid {
-    fn get(&self, x: isize, y: isize) -> Option<u8> {
-        if x >= 0 && y >= 0 && x < self.x as isize && y < self.y as isize {
-            Some(self.grid[y as usize * self.x + x as usize])
-        } else {
-            None
-        }
+    fn in_bounds(&self, x: isize, y: isize) -> bool {
+        x >= 0 && y >= 0 && x < self.x as isize && y < self.y as isize
     }
 }
 
@@ -94,16 +83,16 @@ fn part1(grid: &Grid) -> usize {
         visited.insert(player);
 
         let next_player = dir.step(player);
-        match grid.get(next_player.0, next_player.1) {
-            None => break,
-            Some(b'#') => {
-                dir = dir.turn();
-                continue;
-            }
-            Some(b'.') => {
-                player = next_player;
-            }
-            _ => unreachable!(),
+        if !grid.in_bounds(next_player.0, next_player.1) {
+            break;
+        }
+        if grid
+            .stones
+            .contains(&(next_player.0 as usize, next_player.1 as usize))
+        {
+            dir = dir.turn();
+        } else {
+            player = next_player;
         }
     }
     visited.len()
@@ -133,16 +122,16 @@ fn check_if_loops(
             dir = dir.turn();
             continue;
         }
-        match grid.get(next_player.0, next_player.1) {
-            None => break,
-            Some(b'#') => {
-                dir = dir.turn();
-                continue;
-            }
-            Some(b'.') => {
-                player = next_player;
-            }
-            _ => unreachable!(),
+        if !grid.in_bounds(next_player.0, next_player.1) {
+            break;
+        }
+        if grid
+            .stones
+            .contains(&(next_player.0 as usize, next_player.1 as usize))
+        {
+            dir = dir.turn();
+        } else {
+            player = next_player;
         }
     }
     false
@@ -160,16 +149,16 @@ fn part2(grid: &Grid) -> usize {
         visited.entry(player).or_default().push(dir);
 
         let next_player = dir.step(player);
-        match grid.get(next_player.0, next_player.1) {
-            None => break,
-            Some(b'#') => {
-                dir = dir.turn();
-                continue;
-            }
-            Some(b'.') => {
-                player = next_player;
-            }
-            _ => unreachable!(),
+        if !grid.in_bounds(next_player.0, next_player.1) {
+            break;
+        }
+        if grid
+            .stones
+            .contains(&(next_player.0 as usize, next_player.1 as usize))
+        {
+            dir = dir.turn();
+        } else {
+            player = next_player;
         }
     }
     potential_loops.len()
