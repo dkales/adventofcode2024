@@ -4,10 +4,34 @@ use std::str::FromStr;
 use aoc_traits::AdventOfCodeDay;
 
 #[derive(Debug, Clone)]
+struct Storage {
+    storage: Vec<u8>,
+    x: usize,
+}
+
+impl Storage {
+    fn new(x: usize, y: usize) -> Self {
+        Self {
+            storage: vec![0; x * y],
+            x,
+        }
+    }
+    fn contains(&self, x: usize, y: usize, dir: Direction) -> bool {
+        self.storage[y * self.x + x] & dir as u8 != 0
+    }
+    fn contains_any(&self, x: usize, y: usize) -> bool {
+        self.storage[y * self.x + x] != 0
+    }
+    fn insert(&mut self, x: usize, y: usize, dir: Direction) {
+        self.storage[y * self.x + x] |= dir as u8;
+    }
+}
+
+#[derive(Debug, Clone)]
 pub struct Grid {
     x: usize,
     y: usize,
-    stones: HashSet<(usize, usize)>,
+    stones: Storage,
     player: (usize, usize),
 }
 
@@ -15,25 +39,28 @@ impl FromStr for Grid {
     type Err = eyre::Report;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let mut g_x = 0;
-        let mut g_y = 0;
         let mut player = None;
 
-        let mut stones = HashSet::default();
+        let x = s
+            .lines()
+            .next()
+            .ok_or_else(|| eyre::eyre!("empty input"))?
+            .len();
+        let y = s.lines().count();
+        let mut stones = Storage::new(x, y);
+
         for (y, line) in s.lines().enumerate() {
-            g_y += 1;
-            g_x = line.len();
             for (x, c) in line.chars().enumerate() {
                 if c == '^' {
                     player = Some((x, y));
                 } else if c == '#' {
-                    stones.insert((x, y));
+                    stones.insert(x, y, Direction::Up);
                 }
             }
         }
         Ok(Grid {
-            x: g_x,
-            y: g_y,
+            x,
+            y,
             player: player.expect("have a player"),
             stones,
         })
@@ -47,11 +74,12 @@ impl Grid {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[repr(u8)]
 enum Direction {
-    Up,
-    Down,
-    Left,
-    Right,
+    Up = 1,
+    Down = 2,
+    Left = 4,
+    Right = 8,
 }
 
 impl Direction {
@@ -86,7 +114,7 @@ fn part1(grid: &Grid) -> usize {
         }
         if grid
             .stones
-            .contains(&(next_player.0 as usize, next_player.1 as usize))
+            .contains_any(next_player.0 as usize, next_player.1 as usize)
         {
             dir = dir.turn();
         } else {
@@ -98,24 +126,23 @@ fn part1(grid: &Grid) -> usize {
 
 fn check_if_loops(
     grid: &Grid,
-    mut visited: HashSet<(isize, isize, Direction)>,
+    mut visited: Storage,
     mut player: (isize, isize),
     mut dir: Direction,
     new_rock: (isize, isize),
 ) -> bool {
+    if !grid.in_bounds(new_rock.0, new_rock.1) {
+        return false;
+    }
     // if we put a rock in this position we could not have gotten here at all
-    if visited.contains(&(new_rock.0, new_rock.1, Direction::Up))
-        || visited.contains(&(new_rock.0, new_rock.1, Direction::Down))
-        || visited.contains(&(new_rock.0, new_rock.1, Direction::Left))
-        || visited.contains(&(new_rock.0, new_rock.1, Direction::Right))
-    {
+    if visited.contains_any(new_rock.0 as usize, new_rock.1 as usize) {
         return false;
     }
     loop {
-        if visited.contains(&(player.0, player.1, dir)) {
+        if visited.contains(player.0 as usize, player.1 as usize, dir) {
             return true;
         }
-        visited.insert((player.0, player.1, dir));
+        visited.insert(player.0 as usize, player.1 as usize, dir);
 
         let next_player = dir.step(player);
         if next_player == new_rock {
@@ -127,7 +154,7 @@ fn check_if_loops(
         }
         if grid
             .stones
-            .contains(&(next_player.0 as usize, next_player.1 as usize))
+            .contains_any(next_player.0 as usize, next_player.1 as usize)
         {
             dir = dir.turn();
         } else {
@@ -139,14 +166,14 @@ fn check_if_loops(
 
 fn part2(grid: &Grid) -> usize {
     let mut potential_loops = HashSet::default();
-    let mut visited: HashSet<(isize, isize, Direction)> = HashSet::default();
+    let mut visited = Storage::new(grid.x, grid.y);
     let mut dir = Direction::Up;
     let mut player = (grid.player.0 as isize, grid.player.1 as isize);
     loop {
         if check_if_loops(grid, visited.clone(), player, dir.turn(), dir.step(player)) {
             potential_loops.insert(dir.step(player));
         }
-        visited.insert((player.0, player.1, dir));
+        visited.insert(player.0 as usize, player.1 as usize, dir);
 
         let next_player = dir.step(player);
         if !grid.in_bounds(next_player.0, next_player.1) {
@@ -154,7 +181,7 @@ fn part2(grid: &Grid) -> usize {
         }
         if grid
             .stones
-            .contains(&(next_player.0 as usize, next_player.1 as usize))
+            .contains_any(next_player.0 as usize, next_player.1 as usize)
         {
             dir = dir.turn();
         } else {
