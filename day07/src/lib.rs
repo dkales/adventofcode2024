@@ -45,6 +45,9 @@ fn check_equation_with_concat(target: u64, current: u64, numbers: &[u64]) -> boo
     if numbers.is_empty() {
         return target == current;
     }
+    if current > target {
+        return false;
+    }
     let add = check_equation_with_concat(target, current + numbers[0], &numbers[1..]);
     let mul = check_equation_with_concat(target, current * numbers[0], &numbers[1..]);
 
@@ -100,8 +103,15 @@ impl AdventOfCodeDay for Solver {
         input
             .equations
             .iter()
-            .filter(|e| e.solvable_part2())
-            .map(|e| e.target)
+            .map(|e| {
+                if e.solvable_part1() {
+                    e.target
+                } else if e.solvable_part2() {
+                    e.target
+                } else {
+                    0
+                }
+            })
             .sum()
     }
 }
