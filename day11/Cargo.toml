@@ -9,4 +9,5 @@ edition = "2021"
 aoc-traits = { workspace = true }
 eyre = "0.6.12"
 itertools = "0.13.0"
+memoize = "0.4.2"
 rustc-hash = "2.1.0"

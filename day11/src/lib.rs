@@ -1,3 +1,5 @@
+use rustc_hash::FxHashMap;
+#[memoize::memoize(CustomHasher: FxHashMap, HasherInit: FxHashMap::default())]
 fn step(number: u64, depth: usize) -> usize {
     if depth == 0 {
         return 1;
@@ -31,12 +33,11 @@ impl AdventOfCodeDay for Solver {
             .sum()
     }
     fn solve_part2(input: &Self::ParsedInput<'_>) -> Self::Part2Output {
-        todo!()
-        // input
-        //     .split_ascii_whitespace()
-        //     .map(|x| x.parse::<u64>().unwrap())
-        //     .map(|x| step(x, 75))
-        //     .sum()
+        input
+            .split_ascii_whitespace()
+            .map(|x| x.parse::<u64>().unwrap())
+            .map(|x| step(x, 75))
+            .sum()
     }
 }
 
