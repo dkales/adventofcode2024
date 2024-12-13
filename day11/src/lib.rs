@@ -26,18 +26,22 @@ impl AdventOfCodeDay for Solver {
     }
 
     fn solve_part1(input: &Self::ParsedInput<'_>) -> Self::Part1Output {
-        input
+        let res = input
             .split_ascii_whitespace()
             .map(|x| x.parse::<u64>().unwrap())
             .map(|x| step(x, 25))
-            .sum()
+            .sum();
+        memoized_flush_step();
+        res
     }
     fn solve_part2(input: &Self::ParsedInput<'_>) -> Self::Part2Output {
-        input
+        let res = input
             .split_ascii_whitespace()
             .map(|x| x.parse::<u64>().unwrap())
             .map(|x| step(x, 75))
-            .sum()
+            .sum();
+        memoized_flush_step();
+        res
     }
 }
 
