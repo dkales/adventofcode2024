@@ -504,6 +504,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "day13"
+version = "0.1.0"
+dependencies = [
+ "aoc-traits",
+ "eyre",
+ "itertools",
+ "nom",
+ "rustc-hash 2.1.0",
+]
+
+[[package]]
 name = "digest"
 version = "0.10.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -963,6 +974,7 @@ dependencies = [
  "day08",
  "day09",
  "day11",
+ "day13",
  "secrecy",
 ]
 
