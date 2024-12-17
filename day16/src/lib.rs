@@ -10,6 +10,12 @@ pub struct Grid {
     grid: Vec<u8>,
 }
 
+#[derive(Debug, Clone)]
+pub struct ScoredGrid {
+    score: Vec<[usize; 4]>,
+    grid: Grid,
+}
+
 impl FromStr for Grid {
     type Err = eyre::Report;
 
@@ -41,9 +47,8 @@ impl Grid {
         self.grid[self.idx((x, y))]
     }
 
-    fn find_best_path(&self) -> usize {
+    fn find_best_path(&self) -> Vec<[usize; 4]> {
         let start = (1, self.y - 2);
-        let end = (self.x - 2, 1);
         let mut score = vec![[std::usize::MAX; 4]; self.grid.len()];
         let mut to_visit = VecDeque::new();
         to_visit.push_back((start, Direction::Right, 0));
@@ -78,60 +83,39 @@ impl Grid {
                 to_visit.push_back((next_idx, dir, next_score));
             }
         }
-
-        score[self.idx(end)].iter().copied().min().unwrap()
+        score
     }
+}
 
+impl ScoredGrid {
+    fn get_score(&self) -> usize {
+        let end = (self.grid.x - 2, 1);
+        self.score[self.grid.idx(end)]
+            .iter()
+            .copied()
+            .min()
+            .unwrap()
+    }
     fn find_best_path_tiles(&self) -> usize {
-        let start = (1, self.y - 2);
-        let end = (self.x - 2, 1);
-        let mut score = vec![[std::usize::MAX; 4]; self.grid.len()];
+        let end = (self.grid.x - 2, 1);
+
         let mut to_visit = VecDeque::new();
-        to_visit.push_back((start, Direction::Right, 0));
-
-        while let Some((idx, dir, incoming_score)) = to_visit.pop_front() {
-            let next_idx = dir.step(idx);
-            let next_tile = self.get(dir.step(idx));
-            let next_score = incoming_score + 1;
-
-            let left_score = incoming_score + 1000;
-            let left_dir = dir.turn_left();
-            if incoming_score >= score[self.idx(next_idx)][dir as usize] {
-                continue;
-            }
-            if left_score < score[self.idx(idx)][left_dir as usize] {
-                score[self.idx(idx)][left_dir as usize] = left_score;
-                to_visit.push_back((idx, left_dir, left_score));
-            }
-            let right_score = incoming_score + 1000;
-            let right_dir = dir.turn_right();
-            if right_score < score[self.idx(idx)][right_dir as usize] {
-                score[self.idx(idx)][right_dir as usize] = right_score;
-                to_visit.push_back((idx, right_dir, right_score));
-            }
-
-            if next_tile == b'#' {
-                continue;
-            }
-
-            if next_score < score[self.idx(next_idx)][dir as usize] {
-                score[self.idx(next_idx)][dir as usize] = next_score;
-                to_visit.push_back((next_idx, dir, next_score));
-            }
-        }
-
         // now walk back from the end
-        let min_score = score[self.idx(end)].iter().copied().min().unwrap();
-        if score[self.idx(end)][Direction::Up as usize] == min_score {
+        let min_score = self.score[self.grid.idx(end)]
+            .iter()
+            .copied()
+            .min()
+            .unwrap();
+        if self.score[self.grid.idx(end)][Direction::Up as usize] == min_score {
             to_visit.push_back((end, Direction::Up, min_score));
         }
-        if score[self.idx(end)][Direction::Down as usize] == min_score {
+        if self.score[self.grid.idx(end)][Direction::Down as usize] == min_score {
             to_visit.push_back((end, Direction::Down, min_score));
         }
-        if score[self.idx(end)][Direction::Left as usize] == min_score {
+        if self.score[self.grid.idx(end)][Direction::Left as usize] == min_score {
             to_visit.push_back((end, Direction::Left, min_score));
         }
-        if score[self.idx(end)][Direction::Right as usize] == min_score {
+        if self.score[self.grid.idx(end)][Direction::Right as usize] == min_score {
             to_visit.push_back((end, Direction::Right, min_score));
         }
         let mut points_on_path = FxHashSet::default();
@@ -142,7 +126,7 @@ impl Grid {
                 continue;
             }
             let next_idx = dir.step_back(idx);
-            if score[self.idx(next_idx)][dir as usize] == incoming_score - 1 {
+            if self.score[self.grid.idx(next_idx)][dir as usize] == incoming_score - 1 {
                 to_visit.push_back((next_idx, dir, incoming_score - 1));
             }
             if incoming_score < 1000 {
@@ -150,10 +134,10 @@ impl Grid {
             }
             let left_dir = dir.turn_right();
             let right_dir = dir.turn_left();
-            if score[self.idx(idx)][left_dir as usize] == incoming_score - 1000 {
+            if self.score[self.grid.idx(idx)][left_dir as usize] == incoming_score - 1000 {
                 to_visit.push_back((idx, left_dir, incoming_score - 1000));
             }
-            if score[self.idx(idx)][right_dir as usize] == incoming_score - 1000 {
+            if self.score[self.grid.idx(idx)][right_dir as usize] == incoming_score - 1000 {
                 to_visit.push_back((idx, right_dir, incoming_score - 1000));
             }
         }
@@ -208,16 +192,20 @@ impl Direction {
 #[derive(Default)]
 pub struct Solver;
 impl AdventOfCodeDay for Solver {
-    type ParsedInput<'a> = Grid;
+    type ParsedInput<'a> = ScoredGrid;
     type Part1Output = usize;
     type Part2Output = usize;
 
     fn parse_input(input: &str) -> Self::ParsedInput<'_> {
-        input.parse().expect("Failed to parse input")
+        let grid: Grid = input.parse().expect("Failed to parse input");
+        ScoredGrid {
+            score: grid.find_best_path(),
+            grid,
+        }
     }
 
     fn solve_part1(input: &Self::ParsedInput<'_>) -> Self::Part1Output {
-        input.find_best_path()
+        input.get_score()
     }
     fn solve_part2(input: &Self::ParsedInput<'_>) -> Self::Part2Output {
         input.find_best_path_tiles()
