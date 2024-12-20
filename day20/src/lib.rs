@@ -143,10 +143,9 @@ impl ScoredGrid {
     fn get_cheating_paths(&self, limit: usize, time_limit: usize) -> usize {
         let mut current = self.grid.start;
         let mut current_score = self.score[self.grid.idx(self.grid.start)];
-        let mut path = Vec::with_capacity(current_score + 1);
         let mut cheating_paths = FxHashSet::default();
+        // walk backwards from the start to the end, checking each position for cheating
         while current != self.grid.end {
-            path.push(current);
             let mut next_current = current;
             self.find_possible_cheats(
                 limit,
@@ -170,7 +169,6 @@ impl ScoredGrid {
                     _ => continue,
                 };
                 if self.grid.get(next_idx) == b'#' {
-                    // check if cheating here would be better than limit
                     continue;
                 }
                 if self.score[self.grid.idx(next_idx)] == current_score - 1 {
