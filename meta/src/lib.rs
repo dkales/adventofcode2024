@@ -43,7 +43,7 @@ impl AdventOfCodeSolutions for AoC2024 {
 
     type Day20 = day20::Solver;
 
-    type Day21 = ();
+    type Day21 = day21::Solver;
 
     type Day22 = ();
 
