@@ -121,9 +121,4 @@ mod tests {
         let parsed = Solver::parse_input(TEST_INPUT);
         assert_eq!(Solver::solve_part1(&parsed), 3);
     }
-    #[test]
-    fn test_stage2() {
-        let parsed = Solver::parse_input(TEST_INPUT);
-        assert_eq!(Solver::solve_part2(&parsed), 23);
-    }
 }

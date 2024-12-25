@@ -165,19 +165,10 @@ y03 OR x01 -> nrd
 hwm AND bqk -> z03
 tgd XOR rvg -> z12
 tnw OR pbm -> gnj";
-    const TEST_INPUT2: &str = "1
-2
-3
-2024";
 
     #[test]
     fn test_stage1() {
         let parsed = Solver::parse_input(TEST_INPUT);
         assert_eq!(Solver::solve_part1(&parsed), 2024);
-    }
-    #[test]
-    fn test_stage2() {
-        let parsed = Solver::parse_input(TEST_INPUT2);
-        assert_eq!(Solver::solve_part2(&parsed), 23);
     }
 }
