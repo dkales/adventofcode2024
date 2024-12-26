@@ -669,6 +669,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "day23"
+version = "0.1.0"
+dependencies = [
+ "aoc-traits",
+ "eyre",
+ "itertools",
+ "rustc-hash 1.1.0",
+]
+
+[[package]]
 name = "day24"
 version = "0.1.0"
 dependencies = [
@@ -1182,6 +1192,7 @@ dependencies = [
  "day20",
  "day21",
  "day22",
+ "day23",
  "day24",
  "day25",
  "secrecy",
